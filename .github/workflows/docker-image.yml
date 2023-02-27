@@ -2,15 +2,15 @@ name: BuildandPublishDocker
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
 jobs:
   build:
     runs-on: self-hosted
     steps:
-    - uses: actions/checkout@master
+    - uses: actions/checkout@main
     - name: Publish to Docker Repository
       uses: elgohr/Publish-Docker-Github-Action@v5
       with:
