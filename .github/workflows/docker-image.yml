@@ -1,18 +1,20 @@
-name: Docker Image CI
-
+name: BuildandPublishDocker
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - master
   pull_request:
-    branches: [ "main" ]
-
+    branches:
+      - master
 jobs:
-
   build:
-
-    runs-on: ubuntu-latest
-
+    runs-on: self-hosted
     steps:
-    - uses: actions/checkout@v3
-    - name: Build the Docker image
-      run: docker build . --file Dockerfile --tag docker-fast-cli:$(date +%s)
+    - uses: actions/checkout@master
+    - name: Publish to Docker Repository
+      uses: elgohr/Publish-Docker-Github-Action@v5
+      with:
+        name: brucewillke/docker-fast-cli
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+        tags: latest
