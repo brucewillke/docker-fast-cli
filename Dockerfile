@@ -1,4 +1,4 @@
-FROM node:19.7-bullseye-slim
+FROM node:19.9.0-bullseye-slim
 USER root
 RUN apt-get update
 RUN apt-get -y install sudo libnss3* chromium --no-install-recommends
