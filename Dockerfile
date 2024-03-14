@@ -7,6 +7,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Install fast-cli globally
+RUN npm install -g meow
 RUN npm install -g fast-cli
 
 # Final stage: Use a slim base image
