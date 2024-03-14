@@ -1,5 +1,5 @@
 # Use a slim base image
-FROM node:21.7.0-bullseye-slim
+FROM node:21.7.0-bookworm-slim
 
 # Create a non-root user and set the home directory
 RUN useradd -m docker
