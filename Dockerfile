@@ -8,7 +8,7 @@ RUN apt-get update && \
 
 # Install fast-cli globally
 RUN npm install -g meow
-RUN npm install -g fast-cli
+RUN npm install -g fast-cli@3.2.0
 
 # Final stage: Use a slim base image
 FROM node:21.7.0-bullseye-slim
