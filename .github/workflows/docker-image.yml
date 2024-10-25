@@ -6,11 +6,28 @@ on:
   pull_request:
     branches:
       - main
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@main
+
+    # Step to build the Docker image
+    - name: Build Docker image
+      run: docker build -t brucewillke/docker-fast-cli:latest .
+
+    # Step to test the Docker image
+    - name: Test Docker image
+      run: |
+        # Run a container from the image
+        docker run --name test-container -d brucewillke/docker-fast-cli:latest
+        # Check if the container is running correctly
+        docker exec test-container fast -u
+        # Stop and remove the test container after running the test
+        docker rm -f test-container
+
+    # Step to publish the Docker image to the repository
     - name: Publish to Docker Repository
       uses: elgohr/Publish-Docker-Github-Action@v5
       with:
@@ -18,3 +35,4 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
         tags: latest
+
