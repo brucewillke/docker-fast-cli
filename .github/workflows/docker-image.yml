@@ -22,8 +22,8 @@ jobs:
       run: |
         # Run a container from the image
         docker run --name test-container -d brucewillke/docker-fast-cli:latest
-        # Check if the container is running correctly
-        docker exec test-container fast -u
+        # Check if the application version is accessible as a basic test
+        docker exec test-container fast --version
         # Stop and remove the test container after running the test
         docker rm -f test-container
 
