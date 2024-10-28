@@ -16,7 +16,6 @@ on:
 jobs:
   build-ubuntu:
     runs-on: ubuntu-latest
-    # Run this job only if 'Dockerfile' is modified
     steps:
       - name: Check out code
         uses: actions/checkout@v2
@@ -43,7 +42,6 @@ jobs:
 
   build-alpine:
     runs-on: ubuntu-latest
-    # Run this job only if 'Dockerfile-alpine' is modified
     steps:
       - name: Check out code
         uses: actions/checkout@v2
@@ -55,8 +53,11 @@ jobs:
       # Test the Alpine-based Docker image
       - name: Test Alpine Docker image
         run: |
+          # Run the container
           docker run --name test-alpine -d brucewillke/docker-fast-cli:alpine-latest
-          docker exec test-alpine fast --version
+          # Execute the command using npx
+          docker exec test-alpine npx fast --version
+          # Clean up the container
           docker rm -f test-alpine
 
       # Publish the Alpine-based Docker image
@@ -67,4 +68,3 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           tags: alpine-latest
-
