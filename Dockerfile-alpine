@@ -1,0 +1,25 @@
+# Use Alpine-based Node image
+FROM node:19.7-alpine
+
+# Install Chromium and dependencies
+RUN apk update && \
+    apk add --no-cache chromium nss ca-certificates && \
+    rm -rf /var/cache/apk/*
+
+# Set Puppeteer to use system-installed Chromium
+ENV PUPPETEER_SKIP_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser
+
+# Create app directory and switch to non-root user
+RUN adduser -D docker && mkdir -p /home/docker/app && chown -R docker:docker /home/docker
+
+USER docker
+WORKDIR /home/docker/app
+
+# Create package.json and install dependencies locally
+RUN echo '{ "name": "myapp", "version": "1.0.0", "dependencies": { "fast-cli": "^3.0.0", "puppeteer": "^19.8.0" } }' > package.json
+RUN npm install
+
+# Set default command
+CMD ["npx", "fast", "-u"]
+
