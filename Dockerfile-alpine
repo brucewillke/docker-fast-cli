@@ -20,7 +20,7 @@ WORKDIR /home/docker/app
 # Create package.json and install dependencies locally
 RUN echo '{ "name": "myapp", "version": "1.0.0", "dependencies": { "fast-cli": "^3.0.0", "puppeteer": "^19.8.0" } }' > package.json
 RUN npm install
-Run npx --version
+RUN npm --version
 # Set default command
 CMD ["npx", "fast", "-u"]
 
