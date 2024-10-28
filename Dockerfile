@@ -22,7 +22,7 @@ ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 # Install npm packages globally as root (using --unsafe-perm to prevent permission issues)
 RUN npm install -g fast-cli puppeteer --unsafe-perm
-
+RUN npm --version
 # Switch to the non-root user
 USER docker
 WORKDIR /home/docker/app
