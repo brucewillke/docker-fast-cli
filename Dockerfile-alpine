@@ -1,4 +1,3 @@
-#This is a WIP do not rely on me :)
 # Use Alpine-based Node image
 FROM node:19.7-alpine
 
@@ -18,9 +17,8 @@ USER docker
 WORKDIR /home/docker/app
 
 # Create package.json and install dependencies locally
-RUN echo '{ "name": "myapp", "version": "1.0.0", "dependencies": { "fast-cli": "^3.0.0", "puppeteer": "^19.8.0" } }' > package.json
+RUN echo '{ "name": "myapp", "version": "1.0.0", "dependencies": { "fast-cli": "^3.0.0" } }' > package.json
 RUN npm install
-RUN npm --version
-# Set default command
-CMD ["npx", "fast", "-u"]
 
+# Set default command to use npx to run fast-cli
+CMD ["npx", "fast", "-u"]
