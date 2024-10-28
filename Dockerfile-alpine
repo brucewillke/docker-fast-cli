@@ -1,4 +1,4 @@
-#This is a WIP
+#This is a WIP do not rely on me :)
 # Use Alpine-based Node image
 FROM node:19.7-alpine
 
