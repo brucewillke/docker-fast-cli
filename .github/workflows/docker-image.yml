@@ -3,36 +3,65 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'Dockerfile'
+      - 'Dockerfile-alpine'
   pull_request:
     branches:
       - main
+    paths:
+      - 'Dockerfile'
+      - 'Dockerfile-alpine'
 
 jobs:
-  build:
+  build-ubuntu:
     runs-on: ubuntu-latest
+    if: contains(github.event.commits.*.modified, 'Dockerfile') || contains(github.event.head_commit.message, 'Dockerfile')
     steps:
-    - uses: actions/checkout@main
+      - uses: actions/checkout@main
 
-    # Step to build the Docker image
-    - name: Build Docker image
-      run: docker build -t brucewillke/docker-fast-cli:latest .
+      # Build the Ubuntu-based Docker image
+      - name: Build Ubuntu Docker image
+        run: docker build -f Dockerfile -t brucewillke/docker-fast-cli:ubuntu-latest .
 
-    # Step to test the Docker image
-    - name: Test Docker image
-      run: |
-        # Run a container from the image
-        docker run --name test-container -d brucewillke/docker-fast-cli:latest
-        # Check if the application version is accessible as a basic test
-        docker exec test-container fast --version
-        # Stop and remove the test container after running the test
-        docker rm -f test-container
+      # Test the Ubuntu-based Docker image
+      - name: Test Ubuntu Docker image
+        run: |
+          docker run --name test-ubuntu -d brucewillke/docker-fast-cli:ubuntu-latest
+          docker exec test-ubuntu fast --version
+          docker rm -f test-ubuntu
 
-    # Step to publish the Docker image to the repository
-    - name: Publish to Docker Repository
-      uses: elgohr/Publish-Docker-Github-Action@v5
-      with:
-        name: brucewillke/docker-fast-cli
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-        tags: latest
+      # Publish the Ubuntu-based Docker image
+      - name: Publish Ubuntu Docker image
+        uses: elgohr/Publish-Docker-Github-Action@v5
+        with:
+          name: brucewillke/docker-fast-cli
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          tags: ubuntu-latest
 
+  build-alpine:
+    runs-on: ubuntu-latest
+    if: contains(github.event.commits.*.modified, 'Dockerfile-alpine') || contains(github.event.head_commit.message, 'Dockerfile-alpine')
+    steps:
+      - uses: actions/checkout@main
+
+      # Build the Alpine-based Docker image
+      - name: Build Alpine Docker image
+        run: docker build -f Dockerfile-alpine -t brucewillke/docker-fast-cli:alpine-latest .
+
+      # Test the Alpine-based Docker image
+      - name: Test Alpine Docker image
+        run: |
+          docker run --name test-alpine -d brucewillke/docker-fast-cli:alpine-latest
+          docker exec test-alpine fast --version
+          docker rm -f test-alpine
+
+      # Publish the Alpine-based Docker image
+      - name: Publish Alpine Docker image
+        uses: elgohr/Publish-Docker-Github-Action@v5
+        with:
+          name: brucewillke/docker-fast-cli
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          tags: alpine-latest
