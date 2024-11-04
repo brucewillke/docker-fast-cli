@@ -1,6 +1,6 @@
 #This is a WIP
 # Use a Debian slim-based Node image
-FROM node:19.7-bullseye-slim
+FROM node:19.9.0-bullseye-slim
 
 # Install dependencies and Chromium
 RUN apt-get update && \
