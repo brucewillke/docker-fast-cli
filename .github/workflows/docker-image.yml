@@ -1,4 +1,5 @@
-name: BuildandPublishDocker
+name: Build and Publish Docker
+
 on:
   push:
     branches:
@@ -13,59 +14,71 @@ on:
       - 'Dockerfile'
       - 'Dockerfile-alpine'
   workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manually triggering this build'
+        required: false
 
 jobs:
-  build-ubuntu:
+  build-and-publish:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        name: [ubuntu, alpine]
+
+    env:
+      DOCKER_REPO: brucewillke/docker-fast-cli
+
     steps:
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      # Build the Ubuntu-based Docker image
-      - name: Build Ubuntu Docker image
-        run: docker build -f Dockerfile -t brucewillke/docker-fast-cli:ubuntu-latest .
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      # Test the Ubuntu-based Docker image
-      - name: Test Ubuntu Docker image
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ matrix.name }}-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-${{ matrix.name }}-
+
+      - name: Set image metadata
+        id: meta
         run: |
-          docker run --name test-ubuntu -d brucewillke/docker-fast-cli:ubuntu-latest
-          docker exec test-ubuntu fast --version
-          docker rm -f test-ubuntu
+          if [ "${{ matrix.name }}" = "ubuntu" ]; then
+            echo "dockerfile=Dockerfile" >> $GITHUB_OUTPUT
+            echo "test_cmd=fast --version" >> $GITHUB_OUTPUT
+            echo "tags=ubuntu-latest,latest,latest-ubuntu" >> $GITHUB_OUTPUT
+          else
+            echo "dockerfile=Dockerfile-alpine" >> $GITHUB_OUTPUT
+            echo "test_cmd=npx fast --version" >> $GITHUB_OUTPUT
+            echo "tags=alpine-latest,latest-alpine" >> $GITHUB_OUTPUT
+          fi
 
-      # Publish the Ubuntu-based Docker image
-      - name: Publish Ubuntu Docker image
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ${{ steps.meta.outputs.dockerfile }}
+          tags: |
+            ${{ env.DOCKER_REPO }}:${{ steps.meta.outputs.tags }}
+          outputs: type=docker
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
+
+      - name: Test Docker image
+        run: |
+          IFS=',' read -r first_tag _ <<< "${{ steps.meta.outputs.tags }}"
+          docker run --name test-${{ matrix.name }} -d ${{ env.DOCKER_REPO }}:$first_tag
+          docker exec test-${{ matrix.name }} ${{ steps.meta.outputs.test_cmd }}
+          docker rm -f test-${{ matrix.name }}
+
+      - name: Publish Docker image
         uses: elgohr/Publish-Docker-Github-Action@v5
         with:
-          name: brucewillke/docker-fast-cli
+          name: ${{ env.DOCKER_REPO }}
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-          tags: ubuntu-latest
-
-  build-alpine:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v2
-
-      # Build the Alpine-based Docker image
-      - name: Build Alpine Docker image
-        run: docker build -f Dockerfile-alpine -t brucewillke/docker-fast-cli:alpine-latest .
-
-      # Test the Alpine-based Docker image
-      - name: Test Alpine Docker image
-        run: |
-          # Run the container
-          docker run --name test-alpine -d brucewillke/docker-fast-cli:alpine-latest
-          # Execute the command using npx
-          docker exec test-alpine npx fast --version
-          # Clean up the container
-          docker rm -f test-alpine
-
-      # Publish the Alpine-based Docker image
-      - name: Publish Alpine Docker image
-        uses: elgohr/Publish-Docker-Github-Action@v5
-        with:
-          name: brucewillke/docker-fast-cli
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-          tags: alpine-latest
+          tags: ${{ steps.meta.outputs.tags }}
