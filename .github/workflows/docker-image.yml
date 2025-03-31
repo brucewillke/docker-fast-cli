@@ -12,6 +12,7 @@ on:
     paths:
       - 'Dockerfile'
       - 'Dockerfile-alpine'
+  workflow_dispatch:
 
 jobs:
   build-ubuntu:
