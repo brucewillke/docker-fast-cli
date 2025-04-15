@@ -8,7 +8,10 @@ updates:
     allow:
       - dependency-type: "direct"
     ignore:
-      - dependency-type: "indirect"
+      - dependency-name: "actions/checkout"
+        # optionally:
+        versions:
+          - ">=3.0.0"
 
   # Docker base images
   - package-ecosystem: "docker"
@@ -18,4 +21,7 @@ updates:
     allow:
       - dependency-type: "direct"
     ignore:
-      - dependency-type: "indirect"
+      - dependency-name: "alpine"
+        # optionally:
+        versions:
+          - ">=3.18"
