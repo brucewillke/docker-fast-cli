@@ -1,6 +1,6 @@
 #This is a WIP
 # Use a Debian slim-based Node image
-FROM node:23.10.0-slim
+FROM node:24.0.1-slim
 
 # Install dependencies and Chromium
 RUN apt-get update && \
