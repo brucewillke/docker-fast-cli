@@ -1,5 +1,5 @@
 # Use Alpine-based Node image
-FROM node:23.11.1-alpine
+FROM node:24.1.0-alpine
 
 # Install Chromium and dependencies
 RUN apk update && \
