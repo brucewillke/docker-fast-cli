@@ -1,5 +1,5 @@
 # Use a Debian slim-based Node image
-FROM node:26.2.0-slim
+FROM node:26.7.0-slim
 
 # Install dependencies, Chromium, create non-root user, and install npm packages in one layer
 RUN apt-get update && \
